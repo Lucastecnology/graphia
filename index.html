@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explorador de Funções</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Explorador de Funções</h2>
+    <p>Digite uma função (ex: <b>2x² + 5x - 6</b>) e veja o gráfico.</p>
+
+    <label>Função:</label>
+    <input type="text" id="funcInput" value="2x²+5x-6" />
+
+    <label>Ponto x₀ (reta tangente):</label>
+    <input type="number" id="xPoint" value="0" />
+
+    <!-- O gráfico atualiza em tempo real; botão removido -->
+
+    <div class="results">
+      <h3>Resultados</h3>
+      <p id="roots"></p>
+      <p id="vertex"></p>
+      <p id="concavity"></p>
+      <p id="derivative"></p>
+      <p id="tangent"></p>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="graph"></canvas>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
