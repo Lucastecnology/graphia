@@ -1,5 +1,6 @@
 // Módulo: init.js — Ponto de inicialização do app; registra o handler do botão e renderiza o gráfico inicial
 import { plotFunction } from "./grafico.js";
+import { initModals } from "./modais.js";
 
 // Debounce simples para evitar redesenhos excessivos enquanto o usuário digita
 function debounce(fn, wait) {
@@ -11,6 +12,9 @@ function debounce(fn, wait) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+  // Inicializa os modais
+  initModals();
+  
   // Desenha imediatamente usando os valores padrão do formulário
   plotFunction();
   

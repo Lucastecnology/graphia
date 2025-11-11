@@ -24,11 +24,154 @@
 
     <div class="results">
       <h3>Resultados</h3>
-      <p id="roots"></p>
-      <p id="vertex"></p>
-      <p id="concavity"></p>
-      <p id="derivative"></p>
-      <p id="tangent"></p>
+      <button class="result-btn" id="btn-roots">Raízes</button>
+      <button class="result-btn" id="btn-vertex">Vértice</button>
+      <button class="result-btn" id="btn-concavity">Concavidade</button>
+      <button class="result-btn" id="btn-derivative">Derivada</button>
+      <button class="result-btn" id="btn-tangent">Reta Tangente</button>
+    </div>
+
+    <!-- Popups/Modals -->
+    <div id="modal-overlay" class="modal-overlay"></div>
+    
+    <!-- Modal Raízes -->
+    <div id="modal-roots" class="modal">
+      <div class="modal-header">
+        <h2>Raízes da Função Quadrática</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="explanation">
+          <h3>Como calcular as raízes?</h3>
+          <p>As raízes (ou zeros) de uma função quadrática são os valores de <strong>x</strong> onde a função é igual a zero.</p>
+          <p><strong>Fórmula de Bhaskara:</strong></p>
+          <div class="formula">x = (-b ± √Δ) / (2a)</div>
+          <p>Onde <strong>Δ = b² - 4ac</strong> (discriminante)</p>
+          <ul>
+            <li><strong>Δ > 0:</strong> A função tem duas raízes reais distintas</li>
+            <li><strong>Δ = 0:</strong> A função tem uma raiz real dupla</li>
+            <li><strong>Δ < 0:</strong> A função não tem raízes reais</li>
+          </ul>
+        </div>
+        <div class="result-display">
+          <h3>Resultado para sua função:</h3>
+          <p id="modal-roots-result" class="result-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Vértice -->
+    <div id="modal-vertex" class="modal">
+      <div class="modal-header">
+        <h2>Vértice da Parábola</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="explanation">
+          <h3>Como calcular o vértice?</h3>
+          <p>O vértice é o ponto de máximo ou mínimo da parábola, dependendo da concavidade.</p>
+          <p><strong>Coordenada X do vértice:</strong></p>
+          <div class="formula">x<sub>v</sub> = -b / (2a)</div>
+          <p><strong>Coordenada Y do vértice:</strong></p>
+          <div class="formula">y<sub>v</sub> = f(x<sub>v</sub>) = a(x<sub>v</sub>)² + b(x<sub>v</sub>) + c</div>
+          <p>Ou usando a fórmula alternativa:</p>
+          <div class="formula">y<sub>v</sub> = -Δ / (4a)</div>
+          <p>Onde <strong>Δ = b² - 4ac</strong></p>
+        </div>
+        <div class="result-display">
+          <h3>Resultado para sua função:</h3>
+          <p id="modal-vertex-result" class="result-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Concavidade -->
+    <div id="modal-concavity" class="modal">
+      <div class="modal-header">
+        <h2>Concavidade da Parábola</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="explanation">
+          <h3>Como determinar a concavidade?</h3>
+          <p>A concavidade de uma parábola é determinada pelo sinal do coeficiente <strong>a</strong> da função quadrática.</p>
+          <div class="concavity-rules">
+            <div class="rule-item">
+              <strong>Se a > 0:</strong> A parábola tem concavidade voltada para <strong>cima</strong> (∪)
+              <ul>
+                <li>O vértice é um ponto de <strong>mínimo</strong></li>
+                <li>A função tem valor mínimo no vértice</li>
+              </ul>
+            </div>
+            <div class="rule-item">
+              <strong>Se a < 0:</strong> A parábola tem concavidade voltada para <strong>baixo</strong> (∩)
+              <ul>
+                <li>O vértice é um ponto de <strong>máximo</strong></li>
+                <li>A função tem valor máximo no vértice</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="result-display">
+          <h3>Resultado para sua função:</h3>
+          <p id="modal-concavity-result" class="result-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Derivada -->
+    <div id="modal-derivative" class="modal">
+      <div class="modal-header">
+        <h2>Derivada da Função</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="explanation">
+          <h3>Como calcular a derivada?</h3>
+          <p>A derivada de uma função quadrática nos dá a taxa de variação da função em qualquer ponto.</p>
+          <p><strong>Função original:</strong> f(x) = ax² + bx + c</p>
+          <p><strong>Regra de derivação:</strong></p>
+          <ul>
+            <li>A derivada de <strong>ax²</strong> é <strong>2ax</strong></li>
+            <li>A derivada de <strong>bx</strong> é <strong>b</strong></li>
+            <li>A derivada de <strong>c</strong> é <strong>0</strong></li>
+          </ul>
+          <p><strong>Resultado:</strong></p>
+          <div class="formula">f'(x) = 2ax + b</div>
+          <p>A derivada é uma função linear que representa a inclinação da reta tangente em cada ponto da parábola.</p>
+        </div>
+        <div class="result-display">
+          <h3>Resultado para sua função:</h3>
+          <p id="modal-derivative-result" class="result-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Reta Tangente -->
+    <div id="modal-tangent" class="modal">
+      <div class="modal-header">
+        <h2>Reta Tangente</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="explanation">
+          <h3>Como calcular a reta tangente?</h3>
+          <p>A reta tangente toca a parábola em um único ponto e tem a mesma inclinação da curva nesse ponto.</p>
+          <p><strong>Passo 1:</strong> Calcule a derivada no ponto x₀</p>
+          <div class="formula">m = f'(x₀) = 2a(x₀) + b</div>
+          <p><strong>Passo 2:</strong> Calcule o valor da função no ponto x₀</p>
+          <div class="formula">y₀ = f(x₀) = a(x₀)² + b(x₀) + c</div>
+          <p><strong>Passo 3:</strong> Use a equação da reta</p>
+          <div class="formula">y - y₀ = m(x - x₀)</div>
+          <p>Simplificando:</p>
+          <div class="formula">y = mx + (y₀ - mx₀)</div>
+          <p>Onde <strong>m</strong> é a inclinação (coeficiente angular) e <strong>(y₀ - mx₀)</strong> é o coeficiente linear.</p>
+        </div>
+        <div class="result-display">
+          <h3>Resultado para sua função:</h3>
+          <p id="modal-tangent-result" class="result-text"></p>
+        </div>
+      </div>
     </div>
   </div>
 

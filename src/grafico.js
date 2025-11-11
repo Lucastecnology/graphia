@@ -1,6 +1,7 @@
 // Módulo: grafico.js — Constrói dados, configura e desenha o gráfico com Chart.js. Também atualiza os resultados na UI.
 import { parseFunction } from "./analisador.js";
 import { f, derivative } from "./matematica.js";
+import { updateResults } from "./modais.js";
 
 // Mantém instância atual do gráfico para permitir destruir antes de redesenhar
 let chart;
@@ -172,12 +173,32 @@ export function plotFunction() {
   const tangentXs = [minX, maxX];
   const tangentYs = tangentXs.map(x => m * x + bTangent);
 
-  // Atualiza painel de resultados
-  document.getElementById("roots").innerText = `Raízes: ${raiz1}${raiz2 ? ' e ' + raiz2 : ''}`;
-  document.getElementById("vertex").innerText = `Vértice: (${xv.toFixed(4)}, ${yv.toFixed(4)})`;
-  document.getElementById("concavity").innerHTML = `${concavityText}<br><small>${concavityReason}</small>`;
-  document.getElementById("derivative").innerText = `Derivada: ${derivStr}`;
-  document.getElementById("tangent").innerText = `Reta Tangente em x=${x0}: ${tangentStr}`;
+  // Atualiza os dados nos modais
+  updateResults({
+    roots: {
+      raiz1: raiz1Val,
+      raiz2: raiz2Val,
+      delta: delta
+    },
+    vertex: {
+      xv: xv,
+      yv: yv
+    },
+    concavity: {
+      text: concavityText,
+      reason: concavityReason,
+      a: a
+    },
+    derivative: {
+      formula: derivStr
+    },
+    tangent: {
+      equation: tangentStr,
+      x0: x0,
+      m: m,
+      bTangent: bTangent
+    }
+  });
 
   // Plugin para desenhar rótulos 'x1' e 'x2' nas raízes (sobre o eixo x)
   const rootLabelsPlugin = {
