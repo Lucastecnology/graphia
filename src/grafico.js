@@ -261,8 +261,11 @@ export function plotFunction() {
       scales: {
         x: {
           type: "linear",
-          position: "bottom",
-          title: { display: true, text: "x" },
+          position: "top",
+          title: { display: true, text: "Y",
+            font:{ size: 24, weight: "bold",
+            },
+           },
           min: minX,
           max: maxX,
           grid: {
@@ -271,7 +274,10 @@ export function plotFunction() {
           },
         },
         y: {
-          title: { display: true, text: "y" },
+          position: "right",
+          title: { display: true, text: "X",  font:{ size: 24, weight: "bold",
+          },
+         },
           min: yMin,
           max: yMax,
           grid: {
