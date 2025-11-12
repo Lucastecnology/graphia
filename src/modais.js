@@ -1,6 +1,5 @@
-// Módulo: modais.js — Gerencia a abertura e fechamento dos popups modais
+// Módulo: modais.js — Gerencia modais com resultados formatados sem zeros extras
 
-// Armazena os dados atuais da função para exibir nos modais
 let currentResults = {
   roots: { raiz1: null, raiz2: null, delta: null },
   vertex: { xv: null, yv: null },
@@ -9,254 +8,234 @@ let currentResults = {
   tangent: { equation: "", x0: null, m: null, bTangent: null }
 };
 
-// Inicializa os event listeners dos botões e modais
-export function initModals() {
-  // Botões para abrir modais
-  document.getElementById("btn-roots").addEventListener("click", () => openModal("roots"));
-  document.getElementById("btn-vertex").addEventListener("click", () => openModal("vertex"));
-  document.getElementById("btn-concavity").addEventListener("click", () => openModal("concavity"));
-  document.getElementById("btn-derivative").addEventListener("click", () => openModal("derivative"));
-  document.getElementById("btn-tangent").addEventListener("click", () => openModal("tangent"));
-  // Título "Resultados" deve abrir um modal resumo (com tutorial rápido)
-  const resultsTab = document.getElementById("btn-results");
-  if (resultsTab) resultsTab.addEventListener("click", () => openModal("results"));
+// Formata número: remove .0000, mantém até 4 casas se necessário
+function fmt(num) {
+  if (num === null || num === undefined || !isFinite(num)) return "-";
+  const str = parseFloat(num.toFixed(6)).toString();
+  return str.replace(/\.?0+$/, "");
+}
 
-  // Botões de fechar modal
-  const closeButtons = document.querySelectorAll(".modal-close");
-  closeButtons.forEach(btn => {
-    btn.addEventListener("click", closeModal);
+// Inicializa todos os listeners
+export function initModals() {
+  const btnMap = {
+    "roots": "btn-roots",
+    "vertex": "btn-vertex",
+    "concavity": "btn-concavity",
+    "derivative": "btn-derivative",
+    "tangent": "btn-tangent",
+    "results": "btn-results"
+  };
+
+  Object.entries(btnMap).forEach(([type, id]) => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener("click", () => openModal(type));
   });
 
-  // Fechar ao clicar no overlay
+  // Fechar
+  document.querySelectorAll(".modal-close").forEach(btn => btn.addEventListener("click", closeModal));
   const overlay = document.getElementById("modal-overlay");
-  overlay.addEventListener("click", closeModal);
+  if (overlay) overlay.addEventListener("click", closeModal);
 
-  // Fechar com a tecla ESC
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeModal();
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+  // Delegação (fallback)
+  document.addEventListener("click", e => {
+    const btn = e.target.closest(".result-btn, #btn-results");
+    if (!btn) return;
+    const map = {
+      "btn-roots": "roots",
+      "btn-vertex": "vertex",
+      "btn-concavity": "concavity",
+      "btn-derivative": "derivative",
+      "btn-tangent": "tangent",
+      "btn-results": "results"
+    };
+    const type = map[btn.id];
+    if (type) {
+      openModal(type);
+      e.preventDefault();
+      e.stopPropagation();
     }
   });
 }
 
-// Abre um modal específico
-function openModal(modalType) {
+// Abre modal
+function openModal(type) {
   const overlay = document.getElementById("modal-overlay");
-  const modal = document.getElementById(`modal-${modalType}`);
-  
-  if (!modal) return;
+  const modal = document.getElementById(`modal-${type}`);
+  if (!modal || !overlay) return;
 
-  // Atualiza o conteúdo do modal com os resultados atuais
-  updateModalContent(modalType);
-
-  // Mostra o overlay e o modal
+  updateModalContent(type);
   overlay.classList.add("active");
   modal.classList.add("active");
-
-  // Previne scroll do body
   document.body.style.overflow = "hidden";
 }
 
-// Fecha o modal atual
+// Fecha modal
 function closeModal() {
   const overlay = document.getElementById("modal-overlay");
-  const modals = document.querySelectorAll(".modal");
-
-  overlay.classList.remove("active");
-  modals.forEach(modal => {
-    modal.classList.remove("active");
-  });
-
-  // Restaura scroll do body
+  if (overlay) overlay.classList.remove("active");
+  document.querySelectorAll(".modal").forEach(m => m.classList.remove("active"));
   document.body.style.overflow = "";
 }
 
-// Atualiza o conteúdo do modal com os resultados atuais
-function updateModalContent(modalType) {
-  switch (modalType) {
-    case "roots":
-      updateRootsModal();
-      break;
-    case "vertex":
-      updateVertexModal();
-      break;
-    case "concavity":
-      updateConcavityModal();
-      break;
-    case "derivative":
-      updateDerivativeModal();
-      break;
-    case "tangent":
-      updateTangentModal();
-      break;
-    case "results":
-      updateResultsModal();
-      break;
-  }
+// Atualiza conteúdo por tipo
+function updateModalContent(type) {
+  const handlers = {
+    roots: updateRootsModal,
+    vertex: updateVertexModal,
+    concavity: updateConcavityModal,
+    derivative: updateDerivativeModal,
+    tangent: updateTangentModal,
+    results: updateResultsModal
+  };
+  const fn = handlers[type];
+  if (fn) fn();
 }
 
-// Atualiza o modal de raízes
+// RAÍZES
 function updateRootsModal() {
-  const resultElement = document.getElementById("modal-roots-result");
+  const el = document.getElementById("modal-roots-result");
+  if (!el) return;
   const { raiz1, raiz2, delta } = currentResults.roots;
 
   if (delta === null) {
-    resultElement.innerHTML = "Calcule a função primeiro para ver as raízes.";
+    el.innerHTML = "Calcule a função primeiro para ver as raízes.";
     return;
   }
 
-  let resultText = "";
-  if (delta > 0 && raiz1 !== null && raiz2 !== null) {
-    resultText = `A função tem <strong>duas raízes reais distintas</strong>:<br>`;
-    resultText += `x₁ = ${raiz1.toFixed(4)}<br>`;
-    resultText += `x₂ = ${raiz2.toFixed(4)}<br><br>`;
-    resultText += `Δ = ${delta.toFixed(4)} > 0`;
-  } else if (delta === 0 && raiz1 !== null) {
-    resultText = `A função tem <strong>uma raiz real dupla</strong>:<br>`;
-    resultText += `x₁ = x₂ = ${raiz1.toFixed(4)}<br><br>`;
-    resultText += `Δ = ${delta.toFixed(4)} = 0`;
+  let html = "";
+  if (delta > 0) {
+    html = `<strong>Duas raízes reais distintas:</strong><br>
+            x₁ = ${fmt(raiz1)}<br>
+            x₂ = ${fmt(raiz2)}<br><br>
+            Δ = ${fmt(delta)} > 0`;
+  } else if (delta === 0) {
+    html = `<strong>Uma raiz real dupla:</strong><br>
+            x = ${fmt(raiz1)}<br><br>
+            Δ = 0`;
   } else {
-    resultText = `A função <strong>não possui raízes reais</strong>.<br><br>`;
-    resultText += `Δ = ${delta.toFixed(4)} < 0`;
+    html = `<strong>Sem raízes reais</strong><br><br>
+            Δ = ${fmt(delta)} < 0`;
   }
-
-  resultElement.innerHTML = resultText;
+  el.innerHTML = html;
 }
 
-// Atualiza o modal de vértice
+// VÉRTICE
 function updateVertexModal() {
-  const resultElement = document.getElementById("modal-vertex-result");
+  const el = document.getElementById("modal-vertex-result");
+  if (!el) return;
   const { xv, yv } = currentResults.vertex;
 
   if (xv === null || yv === null) {
-    resultElement.innerHTML = "Calcule a função primeiro para ver o vértice.";
+    el.innerHTML = "Calcule a função primeiro para ver o vértice.";
     return;
   }
 
-  let resultText = `O vértice da parábola está no ponto:<br><br>`;
-  resultText += `<strong>V(${xv.toFixed(4)}, ${yv.toFixed(4)})</strong><br><br>`;
-  resultText += `x<sub>v</sub> = ${xv.toFixed(4)}<br>`;
-  resultText += `y<sub>v</sub> = ${yv.toFixed(4)}`;
-
-  resultElement.innerHTML = resultText;
+  el.innerHTML = `O vértice está em:<br><br>
+                  <strong>V(${fmt(xv)}, ${fmt(yv)})</strong><br><br>
+                  x<sub>v</sub> = ${fmt(xv)}<br>
+                  y<sub>v</sub> = ${fmt(yv)}`;
 }
 
-// Atualiza o modal de concavidade
+// CONCAVIDADE
 function updateConcavityModal() {
-  const resultElement = document.getElementById("modal-concavity-result");
+  const el = document.getElementById("modal-concavity-result");
+  if (!el) return;
   const { text, reason, a } = currentResults.concavity;
 
   if (a === null) {
-    resultElement.innerHTML = "Calcule a função primeiro para ver a concavidade.";
+    el.innerHTML = "Calcule a função primeiro para ver a concavidade.";
     return;
   }
 
-  const aFormatted = a % 1 === 0 ? a.toString() : a.toFixed(2);
-  let resultText = `<strong>${text}</strong><br><br>`;
-  resultText += `${reason}<br><br>`;
-  resultText += `Coeficiente a = ${aFormatted}`;
-
-  resultElement.innerHTML = resultText;
+  el.innerHTML = `<strong>${text}</strong><br><br>
+                  ${reason}<br><br>
+                  Coeficiente a = ${fmt(a)}`;
 }
 
-// Atualiza o modal de derivada
+// DERIVADA
 function updateDerivativeModal() {
-  const resultElement = document.getElementById("modal-derivative-result");
+  const el = document.getElementById("modal-derivative-result");
+  if (!el) return;
   const { formula } = currentResults.derivative;
 
   if (!formula) {
-    resultElement.innerHTML = "Calcule a função primeiro para ver a derivada.";
+    el.innerHTML = "A derivada ainda não foi calculada.<br><br>" +
+                   "Digite uma função quadrática válida e clique em <strong>Plotar</strong>.";
     return;
   }
 
-  const resultText = `A derivada da sua função é:<br><br>`;
-  resultText += `<strong>${formula}</strong>`;
-
-  resultElement.innerHTML = resultText;
+  el.innerHTML = `A derivada da função é:<br><br><strong>${formula}</strong>`;
 }
 
-// Atualiza o modal de reta tangente
+// TANGENTE
 function updateTangentModal() {
-  const resultElement = document.getElementById("modal-tangent-result");
+  const el = document.getElementById("modal-tangent-result");
+  if (!el) return;
   const { equation, x0, m, bTangent } = currentResults.tangent;
 
   if (x0 === null || m === null || bTangent === null) {
-    resultElement.innerHTML = "Calcule a função primeiro para ver a reta tangente.";
+    el.innerHTML = "Calcule a função primeiro para ver a reta tangente.";
     return;
   }
 
-  let resultText = `Reta tangente no ponto x₀ = ${x0.toFixed(4)}:<br><br>`;
-  resultText += `<strong>${equation}</strong><br><br>`;
-  resultText += `Coeficiente angular (m) = ${m.toFixed(4)}<br>`;
-  resultText += `Coeficiente linear (b) = ${bTangent.toFixed(4)}`;
-
-  resultElement.innerHTML = resultText;
+  el.innerHTML = `Reta tangente em x₀ = ${fmt(x0)}:<br><br>
+                  <strong>${equation}</strong><br><br>
+                  m = ${fmt(m)}<br>
+                  b = ${fmt(bTangent)}`;
 }
 
-// Atualiza o modal de resultados/resumo (pequeno tutorial + resultado final)
+// RESUMO
 function updateResultsModal() {
-  const resultElement = document.getElementById("modal-results-result");
-  if (!resultElement) return;
+  const el = document.getElementById("modal-results-result");
+  if (!el) return;
 
-  // Extrai dados armazenados
-  const { roots, vertex, concavity, derivative, tangent } = currentResults;
+  const r = currentResults;
 
-  // Pequeno tutorial / explicação
-  let html = "<div class='explanation'><h3>Resumo Rápido</h3>";
-  html += "<p>Este painel mostra os principais resultados da função que você desenhou e um passo-a-passo rápido:</p>";
-  html += "<ol>";
-  html += "<li>Verifique as raízes (zeros) da função.</li>";
-  html += "<li>Veja o vértice para identificar máximo/mínimo.</li>";
-  html += "<li>Use a reta tangente para entender a inclinação local.</li>";
-  html += "</ol></div>";
+  let html = `<div class='explanation'><h3>Resumo Rápido</h3>
+              <p>Principais resultados da função:</p>
+              <ol>
+                <li>Raízes</li>
+                <li>Vértice</li>
+                <li>Tangente</li>
+              </ol></div>
+              <div class='result-display'><h3>Resultado</h3>`;
 
-  // Resultado final (dados)
-  html += "<div class='result-display'><h3>Resultado</h3>";
   // Raízes
-  if (roots && typeof roots.delta === 'number') {
-    if (roots.delta > 0 && isFinite(roots.raiz1) && isFinite(roots.raiz2)) {
-      html += `<p><strong>Raízes:</strong> x₁ = ${roots.raiz1.toFixed(4)}, x₂ = ${roots.raiz2.toFixed(4)}</p>`;
-    } else if (roots.delta === 0 && isFinite(roots.raiz1)) {
-      html += `<p><strong>Raiz dupla:</strong> x = ${roots.raiz1.toFixed(4)}</p>`;
-    } else {
-      html += `<p><strong>Raízes:</strong> Nenhuma raiz real</p>`;
-    }
-  } else {
-    html += `<p><strong>Raízes:</strong> -</p>`;
-  }
+  if (r.roots?.delta !== null) {
+    if (r.roots.delta > 0)
+      html += `<p><strong>Raízes:</strong> x₁ = ${fmt(r.roots.raiz1)}, x₂ = ${fmt(r.roots.raiz2)}</p>`;
+    else if (r.roots.delta === 0)
+      html += `<p><strong>Raiz dupla:</strong> x = ${fmt(r.roots.raiz1)}</p>`;
+    else
+      html += `<p><strong>Raízes:</strong> Nenhuma real</p>`;
+  } else html += `<p><strong>Raízes:</strong> -</p>`;
 
   // Vértice
-  if (vertex && isFinite(vertex.xv) && isFinite(vertex.yv)) {
-    html += `<p><strong>Vértice:</strong> V(${vertex.xv.toFixed(4)}, ${vertex.yv.toFixed(4)})</p>`;
-  } else {
-    html += `<p><strong>Vértice:</strong> -</p>`;
-  }
+  if (r.vertex?.xv !== null)
+    html += `<p><strong>Vértice:</strong> V(${fmt(r.vertex.xv)}, ${fmt(r.vertex.yv)})</p>`;
+  else html += `<p><strong>Vértice:</strong> -</p>`;
 
   // Concavidade
-  if (concavity && typeof concavity.a === 'number') {
-    html += `<p><strong>Concavidade:</strong> ${concavity.text || '-'} </p>`;
-  }
+  if (r.concavity?.a !== null)
+    html += `<p><strong>Concavidade:</strong> ${r.concavity.text}</p>`;
 
   // Derivada
-  if (derivative && derivative.formula) {
-    html += `<p><strong>Derivada:</strong> ${derivative.formula}</p>`;
-  }
+  if (r.derivative?.formula)
+    html += `<p><strong>Derivada:</strong> ${r.derivative.formula}</p>`;
 
-  // Reta tangente
-  if (tangent && tangent.equation) {
-    html += `<p><strong>Reta tangente (em x₀=${tangent.x0}):</strong> ${tangent.equation}</p>`;
-  }
+  // Tangente
+  if (r.tangent?.equation)
+    html += `<p><strong>Tangente (x₀=${fmt(r.tangent.x0)}):</strong> ${r.tangent.equation}</p>`;
 
-  html += "</div>";
-
-  resultElement.innerHTML = html;
+  html += `</div>`;
+  el.innerHTML = html;
 }
 
-// Função para atualizar os resultados (chamada de grafico.js)
+// Atualiza resultados (chamado por grafico.js)
 export function updateResults(results) {
   currentResults = { ...currentResults, ...results };
 }
 
-// Exporta a função closeModal para uso externo se necessário
 export { closeModal };
-
