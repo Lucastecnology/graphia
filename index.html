@@ -23,12 +23,33 @@
     <!-- O gráfico atualiza em tempo real; botão removido -->
 
     <div class="results">
-      <h3>Resultados</h3>
+      <h3 id="btn-results" style="cursor:pointer">Resultados</h3>
       <button class="result-btn" id="btn-roots">Raízes</button>
       <button class="result-btn" id="btn-vertex">Vértice</button>
       <button class="result-btn" id="btn-concavity">Concavidade</button>
       <button class="result-btn" id="btn-derivative">Derivada</button>
       <button class="result-btn" id="btn-tangent">Reta Tangente</button>
+    </div>
+
+    <!-- Modal Resumo / Resultados (tutorial + resultado final) -->
+    <div id="modal-results" class="modal">
+      <div class="modal-header">
+        <h2>Resultados - Resumo</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div id="modal-results-content">
+          <!-- Conteúdo preenchido dinamicamente por modais.js -->
+          <div class="explanation">
+            <h3>Resumo Rápido</h3>
+            <p>Calculando os principais pontos da função...</p>
+          </div>
+          <div class="result-display">
+            <h3>Resultado</h3>
+            <div id="modal-results-result" class="result-text">—</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Popups/Modals -->

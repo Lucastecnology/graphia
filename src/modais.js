@@ -17,6 +17,9 @@ export function initModals() {
   document.getElementById("btn-concavity").addEventListener("click", () => openModal("concavity"));
   document.getElementById("btn-derivative").addEventListener("click", () => openModal("derivative"));
   document.getElementById("btn-tangent").addEventListener("click", () => openModal("tangent"));
+  // Título "Resultados" deve abrir um modal resumo (com tutorial rápido)
+  const resultsTab = document.getElementById("btn-results");
+  if (resultsTab) resultsTab.addEventListener("click", () => openModal("results"));
 
   // Botões de fechar modal
   const closeButtons = document.querySelectorAll(".modal-close");
@@ -85,6 +88,9 @@ function updateModalContent(modalType) {
       break;
     case "tangent":
       updateTangentModal();
+      break;
+    case "results":
+      updateResultsModal();
       break;
   }
 }
@@ -185,6 +191,65 @@ function updateTangentModal() {
   resultText += `Coeficiente linear (b) = ${bTangent.toFixed(4)}`;
 
   resultElement.innerHTML = resultText;
+}
+
+// Atualiza o modal de resultados/resumo (pequeno tutorial + resultado final)
+function updateResultsModal() {
+  const resultElement = document.getElementById("modal-results-result");
+  if (!resultElement) return;
+
+  // Extrai dados armazenados
+  const { roots, vertex, concavity, derivative, tangent } = currentResults;
+
+  // Pequeno tutorial / explicação
+  let html = "<div class='explanation'><h3>Resumo Rápido</h3>";
+  html += "<p>Este painel mostra os principais resultados da função que você desenhou e um passo-a-passo rápido:</p>";
+  html += "<ol>";
+  html += "<li>Verifique as raízes (zeros) da função.</li>";
+  html += "<li>Veja o vértice para identificar máximo/mínimo.</li>";
+  html += "<li>Use a reta tangente para entender a inclinação local.</li>";
+  html += "</ol></div>";
+
+  // Resultado final (dados)
+  html += "<div class='result-display'><h3>Resultado</h3>";
+  // Raízes
+  if (roots && typeof roots.delta === 'number') {
+    if (roots.delta > 0 && isFinite(roots.raiz1) && isFinite(roots.raiz2)) {
+      html += `<p><strong>Raízes:</strong> x₁ = ${roots.raiz1.toFixed(4)}, x₂ = ${roots.raiz2.toFixed(4)}</p>`;
+    } else if (roots.delta === 0 && isFinite(roots.raiz1)) {
+      html += `<p><strong>Raiz dupla:</strong> x = ${roots.raiz1.toFixed(4)}</p>`;
+    } else {
+      html += `<p><strong>Raízes:</strong> Nenhuma raiz real</p>`;
+    }
+  } else {
+    html += `<p><strong>Raízes:</strong> -</p>`;
+  }
+
+  // Vértice
+  if (vertex && isFinite(vertex.xv) && isFinite(vertex.yv)) {
+    html += `<p><strong>Vértice:</strong> V(${vertex.xv.toFixed(4)}, ${vertex.yv.toFixed(4)})</p>`;
+  } else {
+    html += `<p><strong>Vértice:</strong> -</p>`;
+  }
+
+  // Concavidade
+  if (concavity && typeof concavity.a === 'number') {
+    html += `<p><strong>Concavidade:</strong> ${concavity.text || '-'} </p>`;
+  }
+
+  // Derivada
+  if (derivative && derivative.formula) {
+    html += `<p><strong>Derivada:</strong> ${derivative.formula}</p>`;
+  }
+
+  // Reta tangente
+  if (tangent && tangent.equation) {
+    html += `<p><strong>Reta tangente (em x₀=${tangent.x0}):</strong> ${tangent.equation}</p>`;
+  }
+
+  html += "</div>";
+
+  resultElement.innerHTML = html;
 }
 
 // Função para atualizar os resultados (chamada de grafico.js)
