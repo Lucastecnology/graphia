@@ -401,6 +401,83 @@ export function plotFunction() {
       ctx.restore();
     }
   };
+ // Plugin para desenhar rótulo do vértice (colocar antes de criar o Chart)
+const vertexLabelPlugin = {
+  id: "vertexLabel",
+  afterDatasetsDraw(chart, args, opts = {}) {
+    // opts: { xv, yv, label, color, font, offset, align }
+    const { xv, yv, label = "Vértice", color = "green", font = "12px sans-serif", offset = { x: 8, y: -8 }, align = "left" } = opts;
+
+    // precisa de xv e yv válidos
+    if (typeof xv !== "number" || typeof yv !== "number") return;
+
+    const { ctx, scales, chartArea } = chart;
+    const xScale = scales.x;
+    const yScale = scales.y;
+
+    // converte valores para pixel
+    const xPix = xScale.getPixelForValue(xv);
+    const yPix = yScale.getPixelForValue(yv);
+
+    // somente desenha se pixels forem finitos e dentro da área do gráfico
+    if (!Number.isFinite(xPix) || !Number.isFinite(yPix)) return;
+    if (xPix < chartArea.left - 5 || xPix > chartArea.right + 5 || yPix < chartArea.top - 5 || yPix > chartArea.bottom + 5) {
+      // Se o vértice está fora da área visível, não desenha
+      return;
+    }
+
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = font;
+    // alinhamento: pode ser 'left', 'center' ou 'right'
+    ctx.textAlign = align;
+    // baseline: 'bottom' para desenhar acima do ponto, 'top' para abaixo
+    ctx.textBaseline = "bottom";
+
+    // desenha o texto com offset em relação ao ponto
+    ctx.fillText(label, xPix + (offset.x || 0), yPix + (offset.y || 0));
+    ctx.restore();
+  }
+};
+const retaTangLabelPlugin = {
+  id: "TangenteLabel",
+  afterDatasetsDraw(chart, args, opts = {}) {
+    // opts: { xv, yv, label, color, font, offset, align }
+    const { x0, y0, label = "Tangente", color = "purple", font = "12px sans-serif", offset = { x: 8, y: -8 }, align = "left" } = opts;
+
+    // precisa de xv e yv válidos
+    if (typeof x0 !== "number" || typeof y0 !== "number") return;
+
+    const { ctx, scales, chartArea } = chart;
+    const xScale = scales.x;
+    const yScale = scales.y;
+
+    // converte valores para pixel
+    const xPix = xScale.getPixelForValue(x0);
+    const yPix = yScale.getPixelForValue(y0);
+
+    // somente desenha se pixels forem finitos e dentro da área do gráfico
+    if (!Number.isFinite(xPix) || !Number.isFinite(yPix)) return;
+    if (xPix < chartArea.left - 5 || xPix > chartArea.right + 5 || yPix < chartArea.top - 5 || yPix > chartArea.bottom + 5) {
+      // Se o vértice está fora da área visível, não desenha
+      return;
+    }
+
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = font;
+    // alinhamento: pode ser 'left', 'center' ou 'right'
+    ctx.textAlign = align;
+    // baseline: 'bottom' para desenhar acima do ponto, 'top' para abaixo
+    ctx.textBaseline = "bottom";
+
+    // desenha o texto com offset em relação ao ponto
+    ctx.fillText(label, xPix + (offset.x || 0), yPix + (offset.y || 0));
+    ctx.restore();
+  }
+};
+
+  
 
   // Plugin para desenhar os números dos ticks no próprio eixo (no ponto onde y=0 ou x=0)
   // Isso remove os números da borda e coloca-os sobre os eixos centrais.
@@ -483,6 +560,7 @@ export function plotFunction() {
           pointRadius: 7,
           showLine: false,
         },
+    
         {
           label: "Raízes",
           data: [
@@ -502,7 +580,7 @@ export function plotFunction() {
         },
       ],
     },
-  plugins: [rootLabelsPlugin, axisCenterLabels],
+  plugins: [rootLabelsPlugin, axisCenterLabels, vertexLabelPlugin, retaTangLabelPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -517,8 +595,8 @@ export function plotFunction() {
           min: minX,
           max: maxX,
           ticks: {
-              stepSize: xStepSize,
-              display: false,
+              stepSize: 1,
+              display: true,
             maxTicksLimit: 15, // Limita o número de ticks para não ficarem muito próximos
           },
           grid: {
@@ -534,7 +612,7 @@ export function plotFunction() {
           min: yMin,
           max: yMax,
           ticks: {
-            stepSize: yStepSize,
+            stepSize: 1,
             display: false,
             maxTicksLimit: 15, // Limita o número de ticks para não ficarem muito próximos
           },
@@ -548,13 +626,32 @@ export function plotFunction() {
         legend: { display: false },
         rootLabels: {
           roots: [
-            ...(raiz1Val !== undefined && isFinite(raiz1Val) ? [{ x: raiz1Val, label: "x1" }] : []),
-            ...(raiz2Val !== undefined && isFinite(raiz2Val) ? [{ x: raiz2Val, label: "x2" }] : []),
+            ...(raiz1Val !== undefined && isFinite(raiz1Val) ? [{ x: raiz1Val, label: "X1" }] : []),
+            ...(raiz2Val !== undefined && isFinite(raiz2Val) ? [{ x: raiz2Val, label: "X2" }] : []),
           ],
           color: "orange",
-          font: "12px sans-serif",
+          font: "16px sans-serif", 
           offset: { x: 6, y: -6 }
         },
+        vertexLabel: {
+          xv: xv,        // variável que contém a coordenada x do vértice
+          yv: yv,        // variável que contém a coordenada y do vértice
+          label: "XV",
+          color: "green",
+          font: "20px sans-serif",
+          offset: { x: 8, y: -8 }, // distância do texto em px (x e y)
+          align: "left"            // 'left' | 'center' | 'right'
+        },
+        TangenteLabel: {
+          x0: x0,        // variável que contém a coordenada x0
+          y0: y0,        // variável que contém a coordenada y0
+          label: "Tangente",
+          color: "purple",
+          font: "20px sans-serif",
+          offset: { x: 8, y: -8 }, // distância do texto em px (x e y)
+          align: "left"            // 'left' | 'center' | 'right'
+        },
+
         zoom: {
           zoom: {
             wheel: { enabled: true },
