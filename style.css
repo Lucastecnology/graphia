@@ -41,6 +41,7 @@ body {
   
   .sidebar button:hover {
     background-color: #ffc107;
+    transform: scale(1);
   }
   
   .results {
