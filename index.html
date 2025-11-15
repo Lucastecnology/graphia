@@ -29,6 +29,7 @@
       <button class="result-btn" id="btn-concavity">Concavidade</button>
       <button class="result-btn" id="btn-derivative">Derivada</button>
       <button class="result-btn" id="btn-tangent">Reta Tangente</button>
+      <button class="result-btn" id="btn-questions">Questões</button>
     </div>
 
     <!-- Modal Resumo / Resultados (tutorial + resultado final) -->
@@ -191,6 +192,34 @@
         <div class="result-display">
           <h3>Resultado para sua função:</h3>
           <p id="modal-tangent-result" class="result-text"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Questões -->
+    <div id="modal-questions" class="modal">
+      <div class="modal-header">
+        <h2>Questões de Equações do Segundo Grau</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div id="question-content">
+          <div class="explanation">
+            <h3 id="question-text"></h3>
+            <p id="question-function" style="font-size: 18px; font-weight: bold; color: #0056b3; margin: 15px 0;"></p>
+          </div>
+          <div class="result-display">
+            <label for="answer-input" style="display: block; margin-bottom: 10px; font-weight: bold; color: #0056b3; text-align: center; display: block;">Sua resposta:</label>
+            <input type="text" id="answer-input" style="width: 60%; padding: 10px; font-size: 16px; border: 2px solid #007bff; border-radius: 6px; margin: 15px auto; display: block;" placeholder="Digite sua resposta aqui">
+            <button id="submit-answer" style="width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+              Enviar Resposta
+            </button>
+            <div id="answer-feedback" style="margin-top: 20px; padding: 15px; border-radius: 6px; display: none;"></div>
+            <button id="next-question" style="width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; display: none;">
+              Próxima Questão
+            </button>
+            <div id="attempts-info" style="margin-top: 15px; color: #666; font-size: 14px;"></div>
+          </div>
         </div>
       </div>
     </div>

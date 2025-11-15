@@ -23,6 +23,7 @@ export function initModals() {
     "concavity": "btn-concavity",
     "derivative": "btn-derivative",
     "tangent": "btn-tangent",
+    "questions": "btn-questions",
     "results": "btn-results"
   };
 
@@ -48,6 +49,7 @@ export function initModals() {
       "btn-concavity": "concavity",
       "btn-derivative": "derivative",
       "btn-tangent": "tangent",
+      "btn-questions": "questions",
       "btn-results": "results"
     };
     const type = map[btn.id];
@@ -87,6 +89,7 @@ function updateModalContent(type) {
     concavity: updateConcavityModal,
     derivative: updateDerivativeModal,
     tangent: updateTangentModal,
+    questions: () => {}, // Questões são gerenciadas por questoes.js
     results: updateResultsModal
   };
   const fn = handlers[type];
