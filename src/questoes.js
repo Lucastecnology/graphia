@@ -3,7 +3,7 @@
 // Formata número: remove zeros desnecessários
 function fmt(num) {
   if (num === null || num === undefined || !isFinite(num)) return "-";
-  const str = parseFloat(num.toFixed(6)).toString();
+  const str = parseFloat(num.toFixed(2)).toString();
   return str.replace(/\.?0+$/, "");
 }
 
@@ -161,7 +161,15 @@ export function generateQuestion() {
   
   return question;
 }
+function normalizeNumber(expr) {
+  if (!expr) return "";
 
+  return expr
+    .trim()          // Remove espaços extras no início/fim
+    .replace(/,/g, '.')  // troca vírgulas por pontos
+    .replace(/\s+/g, '') // remove espaços internos para comparar expressões
+
+}
 // Normaliza uma expressão matemática para comparação
 function normalizeExpression(expr) {
   return expr
@@ -185,8 +193,9 @@ export function validateAnswer(userAnswer, correctAnswer, questionType) {
   
   // Para respostas numéricas, compara valores
   if (questionType === 'roots' || questionType === 'vertex-x') {
-    const userNum = parseFloat(normalizedUser);
+    const userNum = normalizeNumber(parseFloat(normalizedUser));
     const correctNum = parseFloat(normalizedCorrect);
+
     if (!isNaN(userNum) && !isNaN(correctNum)) {
       // Tolerância para comparação de números decimais
       return Math.abs(userNum - correctNum) < 0.0001;
