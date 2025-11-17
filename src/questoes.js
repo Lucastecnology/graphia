@@ -281,6 +281,16 @@ export function initQuestions() {
     // Foca no campo de resposta
     answerInputEl.focus();
   }
+
+  // Garante que uma questão esteja carregada quando o modal abre
+  function ensureQuestionLoaded() {
+    if (!currentQuestion) {
+      loadQuestion();
+    } else {
+      // Mantém a questão atual e só garante o foco para continuidade
+      answerInputEl.focus();
+    }
+  }
   
   // Função para verificar a resposta
   function checkAnswer() {
@@ -342,7 +352,9 @@ export function initQuestions() {
     }
   });
   
-  nextBtn.addEventListener('click', loadQuestion);
+  nextBtn.addEventListener('click', () => {
+    loadQuestion();
+  });
   
   // Carrega a primeira questão quando o modal é aberto
   const questionsModal = document.getElementById('modal-questions');
@@ -352,7 +364,10 @@ export function initQuestions() {
       mutations.forEach((mutation) => {
         if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
           if (questionsModal.classList.contains('active')) {
-            loadQuestion();
+            ensureQuestionLoaded();
+          } else {
+            // Mantém a questão atual quando o modal é fechado
+            // (não redefinimos currentQuestion para preservar o estado)
           }
         }
       });
