@@ -162,10 +162,11 @@ export function generateQuestion() {
   return question;
 }
 function normalizeNumber(expr) {
-  if (!expr) return "";
+  if (expr === null || expr === undefined) return "";
+  const s = String(expr).trim();
+  if (s === '') return '';
 
-  return expr
-    .trim()          // Remove espaços extras no início/fim
+  return s
     .replace(/,/g, '.')  // troca vírgulas por pontos
     .replace(/\s+/g, '') // remove espaços internos para comparar expressões
 
@@ -174,6 +175,7 @@ function normalizeNumber(expr) {
 function normalizeExpression(expr) {
   return expr
     .trim()
+    .replace(/,/g, '.') // aceita vírgula como separador decimal
     .toLowerCase()
     .replace(/\s+/g, '') // Remove todos os espaços
     .replace(/f'\(x\)\s*=\s*/g, '') // Remove f'(x) =
@@ -185,16 +187,36 @@ function normalizeExpression(expr) {
     .replace(/([+-])\s*-/g, (m, s) => s === '+' ? '-' : '+'); // Simplifica sinais
 }
 
+// Formata uma resposta para exibição: troca pontos decimais por vírgulas
+function formatAnswerForDisplay(answer) {
+  if (answer === null || answer === undefined) return '';
+  // Se for um número, formata com fmt e troca ponto por vírgula
+  if (typeof answer === 'number') {
+    return fmt(answer).replace(/\./g, ',');
+  }
+
+  // Se for string, procura números com ponto decimal e troca o ponto por vírgula
+  if (typeof answer === 'string') {
+    // Substitui ocorrências como 0.5 ou -3.25 por 0,5 e -3,25
+    return answer.replace(/-?\d+\.\d+/g, (m) => m.replace(/\./g, ','));
+  }
+
+  // Fallback: converte para string e troca pontos por vírgulas apenas dentro de números
+  const s = String(answer);
+  return s.replace(/-?\d+\.\d+/g, (m) => m.replace(/\./g, ','));
+}
+
 // Valida a resposta do usuário
 export function validateAnswer(userAnswer, correctAnswer, questionType) {
   // Remove espaços extras e converte para minúsculas
-  const normalizedUser = userAnswer.trim().toLowerCase().replace(/\s+/g, ' ');
-  const normalizedCorrect = correctAnswer.trim().toLowerCase().replace(/\s+/g, ' ');
+  const normalizedUser = String(userAnswer).trim().toLowerCase().replace(/\s+/g, ' ');
+  const normalizedCorrect = String(correctAnswer).trim().toLowerCase().replace(/\s+/g, ' ');
   
   // Para respostas numéricas, compara valores
   if (questionType === 'roots' || questionType === 'vertex-x') {
-    const userNum = normalizeNumber(parseFloat(normalizedUser));
-    const correctNum = parseFloat(normalizedCorrect);
+    // Aceita vírgula como separador decimal: normaliza antes de parseFloat
+    const userNum = parseFloat(normalizeNumber(normalizedUser));
+    const correctNum = parseFloat(normalizeNumber(normalizedCorrect));
 
     if (!isNaN(userNum) && !isNaN(correctNum)) {
       // Tolerância para comparação de números decimais
@@ -330,7 +352,7 @@ export function initQuestions() {
       attemptsInfoEl.textContent = '';
     } else {
       if (attempts >= maxAttempts) {
-        feedbackEl.innerHTML = `Resposta incorreta.<br><br><strong>Resposta correta:</strong> ${currentQuestion.correctAnswer}`;
+        feedbackEl.innerHTML = `Resposta incorreta.<br><br><strong>Resposta correta:</strong> ${formatAnswerForDisplay(currentQuestion.correctAnswer)}`;
         feedbackEl.style.display = 'block';
         feedbackEl.style.backgroundColor = '#f8d7da';
         feedbackEl.style.color = '#721c24';
