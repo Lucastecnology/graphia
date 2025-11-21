@@ -284,7 +284,7 @@ export function validateAnswer(userAnswer, correctAnswer, questionType) {
 export function initQuestions() {
   let currentQuestion = null;
   let attempts = 0;
-  const maxAttempts = 3;
+  let maxAttempts = 3;
   
   const questionTextEl = document.getElementById('question-text');
   const questionFunctionEl = document.getElementById('question-function');
@@ -298,6 +298,11 @@ export function initQuestions() {
   function loadQuestion() {
     currentQuestion = generateQuestion();
     attempts = 0;
+    if (currentQuestion.type === "concavity") {
+      maxAttempts = 1;  // só 1 tentativa
+    } else {
+      maxAttempts = 3;  // padrão para as outras
+    }
     
     questionTextEl.textContent = currentQuestion.questionText;
     questionFunctionEl.textContent = currentQuestion.functionText;
