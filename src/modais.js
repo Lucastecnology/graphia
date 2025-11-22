@@ -9,8 +9,14 @@ let currentResults = {
 };
 
 // Formata número: remove .0000, mantém até 4 casas se necessário
+// Se for inteiro, retorna sem decimais; caso contrário, remove zeros à direita
 function fmt(num) {
   if (num === null || num === undefined || !isFinite(num)) return "-";
+  // Verifica se é um número inteiro (com tolerância para erros de ponto flutuante)
+  if (Math.abs(num % 1) < 1e-10) {
+    return Math.round(num).toString();
+  }
+  // Caso contrário, formata com até 6 casas decimais e remove zeros à direita
   const str = parseFloat(num.toFixed(6)).toString();
   return str.replace(/\.?0+$/, "");
 }

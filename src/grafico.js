@@ -9,6 +9,19 @@ let chart;
 // Mantém os parâmetros da função atual para redesenho dinâmico durante pan/zoom
 let currentFunctionParams = { a: 0, b: 0, c: 0, x0: 0 };
 
+// Função auxiliar para formatar números: remove zeros desnecessários
+// Se for inteiro, retorna sem decimais; caso contrário, remove zeros à direita
+function formatNumber(num) {
+  if (num === null || num === undefined || !isFinite(num)) return "0";
+  // Verifica se é um número inteiro
+  if (num % 1 === 0) {
+    return num.toString();
+  }
+  // Caso contrário, formata com até 4 casas decimais e remove zeros à direita
+  const str = parseFloat(num.toFixed(6)).toString();
+  return str.replace(/\.?0+$/, "");
+}
+
 // Função para atualizar os pontos da parábola e reta tangente baseado na área visível
 function updateParabolaPoints(chartInstance, a, b, c, x0) {
   if (!chartInstance || !chartInstance.scales) return;
@@ -178,9 +191,10 @@ export function plotFunction() {
   const regexPattern = /^([+-]?\d*\.?\d*)\*?x\*\*2(?:\s*([+-]?\d*\.?\d*)\*?x)?(?:\s*([+-]?\d*\.?\d*))?$/;
   const match = parsed.match(regexPattern);
 
-  if (!match) {
-    alert("Digite uma função quadrática no formato ax² + bx + c (ex: x² + 2x + 1 ou -2x² - x + 3)");
-    return;
+  let delayCheck;
+
+  if (!match) { alert("Digite uma função quadrática no formato ax² + bx + c (ex: x² + 2x + 1 ou -2x² - x + 3)"); 
+    return; 
   }
 
   // 2) Converte strings capturadas em números e trata ausências/sinais
@@ -344,9 +358,9 @@ export function plotFunction() {
 
   const m = derivative(a, b, x0);
   const bTangent = y0 - m * x0;
-  let tangentStr = `y = ${m.toFixed(4)}x`;
-  if (bTangent > 0) tangentStr += ` + ${bTangent.toFixed(4)}`;
-  else if (bTangent < 0) tangentStr += ` ${bTangent.toFixed(4)}`;
+  let tangentStr = `y = ${formatNumber(m)}x`;
+  if (bTangent > 0) tangentStr += ` + ${formatNumber(bTangent)}`;
+  else if (bTangent < 0) tangentStr += ` ${formatNumber(bTangent)}`;
 
   // Série da reta tangente
   const tangentXs = [minX, maxX];
