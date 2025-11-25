@@ -193,9 +193,9 @@ export function plotFunction() {
 
   let delayCheck;
 
-  if (!match) { alert("Digite uma função quadrática no formato ax² + bx + c (ex: x² + 2x + 1 ou -2x² - x + 3)"); 
-    return; 
-  }
+  // if (!match) { alert("Digite uma função quadrática no formato ax² + bx + c (ex: x² + 2x + 1 ou -2x² - x + 3)"); 
+   // return; 
+  //}
 
   // 2) Converte strings capturadas em números e trata ausências/sinais
   let aStr = (match[1] || "").replace(/\s/g, "") || "1";
